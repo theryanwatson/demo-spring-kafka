@@ -27,13 +27,13 @@ public class ProducerController {
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PutMapping("/one")
-    public void produceToOne(String message) {
-        producer.send(topicOne, message);
+    public void produceToOne(String key, String message) {
+        producer.send(topicOne, key, message);
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PutMapping("/two")
-    public void produceToTwo(String message) {
-        producer.send(topicTwo, message);
+    public void produceToTwo(String key, String message) {
+        producer.send(topicTwo, key, message);
     }
 }

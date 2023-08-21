@@ -13,8 +13,6 @@ public class OneListener {
 
     @KafkaListener(topics = "${kafka.topic.inbound.one}")
     public void handleRecord(final ConsumerRecord<String, String> record) {
-        if (record.value() != null) {
-            log.debug("{}, key={}", record.value(), record.key());
-        }
+        log.debug("key={}, value={}", record.key(), record.value());
     }
 }
