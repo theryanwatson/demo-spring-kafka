@@ -33,7 +33,7 @@ import static org.springframework.kafka.support.KafkaHeaders.ORIGINAL_TOPIC;
 public class RetryableListener {
     private final Cache messageCache;
 
-    @RetryableTopic(attempts = "${retryable.backoff.attempts:3}", backoff = @Backoff(delayExpression = "${retryable.backoff.delay.ms:10000}"),
+    @RetryableTopic(attempts = "${spring.kafka.retry.topic.attempts:3}", backoff = @Backoff(delayExpression = "${spring.kafka.retry.topic.delay.ms:10000}"),
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, fixedDelayTopicStrategy = FixedDelayStrategy.SINGLE_TOPIC)
     @KafkaListener(topics = "${kafka.topic.inbound.one}", groupId = "${spring.application.name}-retryable")
     public void handleRecord(final ConsumerRecord<String, String> record) {
@@ -63,7 +63,7 @@ public class RetryableListener {
         final String topic = getHeaderOr(record.headers(), ORIGINAL_TOPIC, b -> new String(b.array()), record::topic);
         final String offset = getHeaderOr(record.headers(), ORIGINAL_OFFSET, ByteBuffer::getLong, record::offset);
         final String partition = getHeaderOr(record.headers(), ORIGINAL_PARTITION, ByteBuffer::getInt, record::partition);
-        return String.join("::", topic, offset, partition);
+        return String.join("::", topic, offset, partition, record.key());
     }
 
     private static <T> String getHeaderOr(final Headers headers, final String key, final Function<ByteBuffer, T> converter, final Supplier<T> supplier) {

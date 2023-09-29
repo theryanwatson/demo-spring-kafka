@@ -10,8 +10,14 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -68,5 +74,17 @@ public class RelaySleepListener {
     @SneakyThrows
     void delay(long delayMs) {
         Thread.sleep(delayMs);
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    static class PrivateConfiguration {
+        @Bean
+        ConcurrentKafkaListenerContainerFactory<String, String> batchListenerFactory(final KafkaProperties kafkaProperties) {
+            final ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+            final DefaultKafkaConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<>(kafkaProperties.buildConsumerProperties(), new StringDeserializer(), new StringDeserializer());
+            factory.setConsumerFactory(consumerFactory);
+            factory.setBatchListener(true);
+            return factory;
+        }
     }
 }
