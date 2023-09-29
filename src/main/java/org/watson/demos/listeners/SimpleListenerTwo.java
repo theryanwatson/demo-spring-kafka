@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TwoListener {
+public class SimpleListenerTwo {
 
     @KafkaListener(topics = "${kafka.topic.inbound.two}")
     public void handleRecord(final ConsumerRecord<String, String> record) {
-        log.debug("key={}, value={}", record.key(), record.value());
+        log.debug("topic={}, partition={}, offset={}, key={}, value={}, headers={}",
+                record.topic(), record.partition(), record.offset(), record.key(), record.value(), record.headers().toArray());
     }
 }
