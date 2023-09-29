@@ -23,6 +23,24 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       - KAFKA_CFG_NUM_PARTITIONS=6
+  kafka-setup:
+    image: docker.io/bitnami/kafka:3.5
+    depends_on:
+      - kafka
+    restart: "no"
+    environment:
+      - BOOTSTRAP_SERVER=kafka:9091
+      - PARTITION_COUNT=6
+    entrypoint: [ "bash", "-c", "
+    kafka-topics.sh --bootstrap-server $${BOOTSTRAP_SERVER} --list;
+    for TOPIC in 'event-one-entry' 'event-two-entry'; do
+      kafka-topics.sh --bootstrap-server $${BOOTSTRAP_SERVER} --create --if-not-exists --partitions 1 --config cleanup.policy='delete' --topic $${TOPIC}-dlt;
+      for SUFFIX in '' '-retry'; do
+        kafka-topics.sh --bootstrap-server $${BOOTSTRAP_SERVER} --create --if-not-exists --partitions $${PARTITION_COUNT} --config cleanup.policy='delete' --topic $${TOPIC}$${SUFFIX};
+      done;
+    done;
+    exit 0;
+    " ]
 volumes:
   kafka_data:
     driver: local
