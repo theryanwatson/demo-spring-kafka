@@ -12,6 +12,7 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+@ConditionalOnProperty(value = "spring.kafka.retry.topic.enabled", havingValue = "false", matchIfMissing = true)
+// TODO Figure out how to co-exist Bulk and Kafka retry
 @Slf4j
 @RequiredArgsConstructor
 @Component
